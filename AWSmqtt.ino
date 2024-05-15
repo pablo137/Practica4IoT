@@ -9,8 +9,8 @@
 #define echo 12
 float cm = 0;
 
-const char * WIFI_SSID = "LOPEZ";
-const char * WIFI_PASS = "76486651NL";
+const char * WIFI_SSID = "NOMBRE_WIFI";
+const char * WIFI_PASS = "PASSWORD_WIFI";
 const char * MQTT_BROKER_HOST = "aqpw3xfp04sdt-ats.iot.us-east-1.amazonaws.com";
 const int MQTT_BROKER_PORT = 8883;
 

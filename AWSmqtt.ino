@@ -5,18 +5,19 @@
 
 // Definimos el pin al que está conectado el servo
 #define SERVO_PIN 13
+//Pines ultrasonico
 #define trigger 14
 #define echo 12
 float cm = 0;
 
-const char * WIFI_SSID = "NOMBRE_WIFI";
-const char * WIFI_PASS = "PASSWORD_WIFI";
+const char * WIFI_SSID = "SamsungChido";
+const char * WIFI_PASS = "qwertyui";
 const char * MQTT_BROKER_HOST = "aqpw3xfp04sdt-ats.iot.us-east-1.amazonaws.com";
 const int MQTT_BROKER_PORT = 8883;
 
 const char * MQTT_CLIENT_ID = "ESP-32";               // Unique CLIENT_ID
-const char * PUBLISH_TOPIC = "$aws/things/iot1/shadow/name/shadow/update";               // TOPIC where ESP32 publishes
-const char * SUBSCRIBE_TOPIC = "test";           // TOPIC where ESP32 receive
+const char * PUBLISH_TOPIC = "$aws/things/iot1/shadow/name/NuevoShadow/update";               // TOPIC where ESP32 publishes
+const char * SUBSCRIBE_TOPIC = "gato_distancia_test";                                         // TOPIC where ESP32 receive
 
 // $aws/things/iot1/shadow/name/shadow/update/accepted
 // Creamos un objeto servo
@@ -47,7 +48,7 @@ rqXRfboQnoZsG4q5WTP468SQvvG5
 
 const char CERTIFICATE[] PROGMEM = R"KEY(
 -----BEGIN CERTIFICATE-----
-MIIDWTCCAkGgAwIBAgIUIsaxsllhzKJnXC/RT9NFu63MQeIwDQYJKoZIhvcNAQEL
+MIIDWTCCAkGgAwIBAgIUIsaxsllhzKJnXC/RT9NFu63MQeIwDQYJKoZIhvcNAQEL  
 BQAwTTFLMEkGA1UECwxCQW1hem9uIFdlYiBTZXJ2aWNlcyBPPUFtYXpvbi5jb20g
 SW5jLiBMPVNlYXR0bGUgU1Q9V2FzaGluZ3RvbiBDPVVTMB4XDTI0MDUxMzIzMTYw
 NVoXDTQ5MTIzMTIzNTk1OVowHjEcMBoGA1UEAwwTQVdTIElvVCBDZXJ0aWZpY2F0
@@ -156,8 +157,9 @@ void callback(const char * topic, byte * payload, unsigned int length)
     {
        if (String(topic) == SUBSCRIBE_TOPIC) 
        {
-          int action = int(inputDoc["state"]["desired"]["action"].as<const int>());
-          if (action == 1)  
+          String result = inputDoc["state"]["desired"]["result"].as<String>();
+          Serial.println(result);
+          if (result == "dispensed")  
           {
             girarServo();
             delay(2000); // espera de 10sec
@@ -236,6 +238,7 @@ void loop()
     reconnect();
   }
   client.loop();
+ 
   // Calculamos la distancia en centímetros
   cm = 0.01723 * readUltrasonicDistance(trigger, echo);
   // Imprimimos la distancia medida
@@ -244,9 +247,12 @@ void loop()
   if (millis() - lastPublish > 5000) 
   {
      lastPublish = millis();
-     outputDoc["state"]["reported"]["distancia"] = cm;
+     outputDoc["state"]["reported"]["distancia_gato"] = cm;
+     outputDoc["state"]["reported"]["weight_food_ondish"] = 0;
      serializeJson(outputDoc, outputBuffer);
      client.publish(PUBLISH_TOPIC, outputBuffer);
+     Serial.print("Inicio los 3 segundos "); 
      delay(3000);
-  }   
+     Serial.println("Termino los 3 segundos"); 
+  }  
 }
